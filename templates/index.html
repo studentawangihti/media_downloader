@@ -7,86 +7,170 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     <meta name="theme-color" content="#1f2937" />
-    <title>Pro Downloader V2</title>
+    <meta
+      name="description"
+      content="Download video FB, IG, TikTok, YouTube tanpa watermark. Support iOS & Android."
+    />
+
+    <title>Universal Downloader V3</title>
 
     <link rel="manifest" href="/static/manifest.json" />
     <link rel="apple-touch-icon" href="/static/icon.png" />
 
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      /* Custom Utilities */
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .blink {
+        animation: blinker 1s linear infinite;
+      }
+      @keyframes blinker {
+        50% {
+          opacity: 0;
+        }
+      }
+
+      /* Mencegah zoom saat input di iOS */
+      input,
+      select {
+        font-size: 16px !important;
+      }
+    </style>
   </head>
   <body
-    class="bg-gray-900 text-gray-200 min-h-screen font-mono p-4 flex flex-col items-center"
+    class="bg-gray-900 text-gray-200 min-h-screen font-sans p-4 flex flex-col items-center justify-start pb-20"
   >
-    <div class="w-full max-w-2xl space-y-6 mt-10">
+    <div class="w-full max-w-2xl space-y-6 mt-4 md:mt-10">
       <div class="text-center space-y-2">
-        <h1 class="text-4xl font-bold text-blue-500 tracking-tighter">
+        <h1
+          class="text-3xl md:text-4xl font-extrabold text-blue-500 tracking-tighter drop-shadow-lg"
+        >
           UNIVERSAL <span class="text-white">DOWNLOADER</span>
         </h1>
-        <p class="text-xs text-gray-500">HD VIDEO • HQ AUDIO • MULTI-FORMAT</p>
-      </div>
-
-      <div class="bg-gray-800 border border-gray-700 p-6 rounded-lg shadow-2xl">
-        <div class="flex gap-2 mb-4">
-          <input
-            type="text"
-            id="urlInput"
-            placeholder="Tempel Link (TikTok, IG, FB, YT)..."
-            class="w-full bg-gray-900 border border-gray-600 rounded p-3 text-white focus:outline-none focus:border-blue-500 transition"
-          />
-          <button
-            onclick="checkUrl()"
-            id="btnCheck"
-            class="bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded font-bold text-white transition shrink-0"
-          >
-            Cek Link
-          </button>
-        </div>
-        <p
-          class="text-xs text-gray-500 text-right cursor-pointer hover:text-red-400"
-          onclick="resetAll()"
-        >
-          [ Reset System ]
+        <p class="text-xs text-gray-500 font-mono">
+          TIKTOK • IG • FB • YOUTUBE
         </p>
       </div>
 
       <div
-        id="previewPanel"
-        class="hidden bg-gray-800 border border-gray-700 p-6 rounded-lg shadow-2xl flex flex-col md:flex-row gap-6 items-start"
+        class="bg-gray-800 border border-gray-700 p-5 rounded-xl shadow-2xl relative overflow-hidden"
       >
-        <div class="w-full md:w-1/3">
+        <div
+          class="absolute top-0 right-0 w-20 h-20 bg-blue-500 opacity-10 rounded-full blur-2xl -mr-10 -mt-10"
+        ></div>
+
+        <label
+          class="text-xs text-gray-400 ml-1 mb-2 block uppercase font-bold tracking-wide"
+          >Link Video:</label
+        >
+        <div class="flex gap-2 mb-2">
+          <input
+            type="text"
+            id="urlInput"
+            placeholder="Tempel link disini..."
+            class="w-full bg-gray-900 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition shadow-inner"
+          />
+
+          <button
+            onclick="checkUrl()"
+            id="btnCheck"
+            class="bg-blue-600 hover:bg-blue-500 px-4 md:px-6 py-3 rounded-lg font-bold text-white transition shadow-lg shrink-0 flex items-center gap-2"
+          >
+            <span id="btnCheckText">CEK</span>
+            <svg
+              id="btnCheckIcon"
+              class="w-5 h-5 hidden animate-spin"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+          </button>
+        </div>
+        <div class="flex justify-between items-center">
+          <p class="text-[10px] text-gray-600 italic">
+            Pastikan akun tidak diprivate.
+          </p>
+          <button
+            onclick="resetAll()"
+            class="text-xs text-red-400 hover:text-red-300 underline"
+          >
+            [ Reset System ]
+          </button>
+        </div>
+      </div>
+
+      <div
+        id="previewPanel"
+        class="hidden bg-gray-800 border border-gray-700 p-5 rounded-xl shadow-2xl flex flex-col md:flex-row gap-6 items-start animate-[fadeIn_0.5s_ease-out]"
+      >
+        <div class="w-full md:w-1/3 relative group">
+          <div
+            class="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition rounded-lg"
+          ></div>
           <img
             id="thumbImg"
             src=""
-            class="w-full rounded border border-gray-600 shadow-lg object-cover"
+            class="w-full rounded-lg border border-gray-600 shadow-lg object-cover aspect-video bg-gray-900"
           />
+          <span
+            id="platformTag"
+            class="absolute top-2 left-2 bg-black/80 backdrop-blur text-[10px] px-2 py-1 rounded text-blue-300 uppercase font-bold border border-gray-700"
+          >
+            PLATFORM
+          </span>
         </div>
 
         <div class="w-full md:w-2/3 space-y-4">
           <div>
-            <span
-              id="platformTag"
-              class="bg-gray-700 text-xs px-2 py-1 rounded text-blue-300 uppercase font-bold"
-              >Platform</span
-            >
             <h2
               id="mediaTitle"
-              class="text-xl font-bold text-white mt-1 leading-tight line-clamp-2"
+              class="text-lg font-bold text-white leading-tight line-clamp-2"
             >
-              Title
+              Judul Video
             </h2>
-            <p class="text-sm text-gray-400 mt-1">
-              By: <span id="uploaderName">User</span> •
-              <span id="durationTime">00:00</span>
+            <p class="text-xs text-gray-400 mt-1 flex items-center gap-2">
+              <span id="uploaderName" class="text-gray-300 font-semibold"
+                >User</span
+              >
+              <span>•</span>
+              <span
+                id="durationTime"
+                class="bg-gray-700 px-1 rounded text-[10px]"
+                >00:00</span
+              >
             </p>
           </div>
 
           <div class="border-t border-gray-700 pt-4 space-y-3">
             <div>
-              <label class="text-xs text-gray-400 mb-1 block">TIPE FILE:</label>
+              <label
+                class="text-[10px] text-gray-400 mb-1 block uppercase tracking-wider"
+                >Format Output</label
+              >
               <select
                 id="formatSelect"
                 onchange="toggleQualities()"
-                class="bg-gray-900 border border-gray-600 rounded p-2 text-sm w-full focus:outline-none"
+                class="w-full bg-gray-900 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-green-500"
               >
                 <option value="merge">🎬 Video + Audio (MP4)</option>
                 <option value="audio">🎵 Audio Only (MP3)</option>
@@ -95,76 +179,183 @@
             </div>
 
             <div id="videoQualContainer">
-              <label class="text-xs text-gray-400 mb-1 block"
-                >KUALITAS VIDEO (Max Res):</label
+              <label
+                class="text-[10px] text-gray-400 mb-1 block uppercase tracking-wider"
+                >Kualitas Video</label
               >
               <select
                 id="videoQualSelect"
-                class="bg-gray-900 border border-gray-600 rounded p-2 text-sm w-full focus:outline-none text-white"
+                class="w-full bg-gray-900 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none text-white"
               >
-                <option value="best">Best Available</option>
+                <option value="best">Best Available (Auto)</option>
               </select>
             </div>
 
             <div id="audioQualContainer" class="hidden">
-              <label class="text-xs text-gray-400 mb-1 block"
-                >KUALITAS AUDIO (Bitrate):</label
+              <label
+                class="text-[10px] text-gray-400 mb-1 block uppercase tracking-wider"
+                >Bitrate Audio</label
               >
               <select
                 id="audioQualSelect"
-                class="bg-gray-900 border border-gray-600 rounded p-2 text-sm w-full focus:outline-none text-white"
+                class="w-full bg-gray-900 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none text-white"
               >
-                <option value="320">320 kbps (High Quality)</option>
-                <option value="192" selected>192 kbps (Standard)</option>
-                <option value="128">128 kbps (Low/Light)</option>
-                <option value="64">64 kbps (Very Low)</option>
+                <option value="320">320 kbps (Jernih)</option>
+                <option value="192" selected>192 kbps (Standar)</option>
+                <option value="128">128 kbps (Hemat)</option>
+                <option value="64">64 kbps (Ringan)</option>
               </select>
             </div>
 
-            <button
-              onclick="executeDownload()"
-              id="btnDownload"
-              class="w-full bg-green-600 hover:bg-green-500 py-3 rounded font-bold text-white transition mt-2"
-            >
-              DOWNLOAD
-            </button>
+            <div class="flex flex-col gap-3 mt-4 pt-2">
+              <button
+                onclick="executeDownload(false)"
+                id="btnNormal"
+                class="group relative w-full bg-green-600 hover:bg-green-500 active:bg-green-700 py-3 rounded-lg font-bold text-white transition shadow-lg flex items-center justify-center gap-2 overflow-hidden"
+              >
+                <div
+                  class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"
+                ></div>
+                <span>🚀</span> DOWNLOAD
+                <span class="text-xs font-normal opacity-75"
+                  >(Android / PC)</span
+                >
+              </button>
+
+              <button
+                onclick="executeDownload(true)"
+                id="btnIOS"
+                class="w-full bg-gray-700 hover:bg-gray-600 active:bg-gray-800 border border-gray-600 py-3 rounded-lg font-bold text-gray-200 transition flex items-center justify-center gap-2"
+              >
+                <span>🍎</span> Download for iOS
+                <span class="text-xs font-normal opacity-50">(Re-encode)</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       <div
-        class="bg-black border border-gray-700 rounded-lg p-4 font-mono text-xs h-40 overflow-y-auto scrollbar-hide shadow-inner w-full"
-        id="logContainer"
+        class="bg-black border border-gray-800 rounded-lg p-4 font-mono text-xs shadow-inner relative"
       >
-        <div id="logs" class="space-y-1 text-green-400">
-          <div class="opacity-50">System Ready...</div>
+        <div
+          class="absolute top-2 right-2 text-[10px] text-gray-600 select-none"
+        >
+          SYSTEM_LOGS
+        </div>
+        <div
+          id="logContainer"
+          class="h-32 overflow-y-auto scrollbar-hide space-y-1"
+        >
+          <div id="logs" class="text-green-500/80">
+            <div class="opacity-50">System Initialized. Ready for input...</div>
+          </div>
+          <div class="mt-1 text-green-500 animate-pulse">_</div>
         </div>
       </div>
     </div>
 
     <script>
-      // Register Service Worker untuk PWA
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker
-          .register("/static/sw.js")
-          .then(() => console.log("Service Worker Registered"));
-      }
-
+      // --- UTILITIES ---
       function addLog(msg, type = "info") {
         const logsDiv = document.getElementById("logs");
         const time = new Date().toLocaleTimeString("en-US", { hour12: false });
-        let color =
-          type === "error"
-            ? "text-red-500"
-            : type === "warn"
-            ? "text-yellow-400"
-            : "text-green-400";
-        logsDiv.innerHTML += `<div class="${color}"><span class="opacity-50">[${time}]</span> ${msg}</div>`;
-        document.getElementById("logContainer").scrollTop =
-          document.getElementById("logContainer").scrollHeight;
+
+        let color = "text-green-400";
+        let icon = "➜";
+
+        if (type === "error") {
+          color = "text-red-500";
+          icon = "✖";
+        }
+        if (type === "warn") {
+          color = "text-yellow-400";
+          icon = "⚠";
+        }
+
+        const newLog = document.createElement("div");
+        newLog.className = `${color} break-words`;
+        newLog.innerHTML = `<span class="opacity-40">[${time}]</span> ${icon} ${msg}`;
+
+        logsDiv.appendChild(newLog);
+
+        const container = document.getElementById("logContainer");
+        container.scrollTop = container.scrollHeight;
       }
 
-      // Handle UI changes based on Format selection
+      // --- STEP 1: CEK URL ---
+      async function checkUrl() {
+        const url = document.getElementById("urlInput").value;
+        const btnText = document.getElementById("btnCheckText");
+        const btnIcon = document.getElementById("btnCheckIcon");
+        const btn = document.getElementById("btnCheck");
+
+        if (!url) return alert("Mohon masukkan link video terlebih dahulu!");
+
+        resetUI(false);
+        addLog(`Menganalisa metadata dari: ${url.substring(0, 25)}...`);
+
+        // UI Loading
+        btn.disabled = true;
+        btnText.innerText = "";
+        btnIcon.classList.remove("hidden");
+
+        try {
+          const response = await fetch("/get-info", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url: url }),
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            addLog("Metadata ditemukan! Menampilkan preview.");
+            showPreview(result.data);
+          } else {
+            throw new Error(result.error);
+          }
+        } catch (err) {
+          addLog(`Gagal: ${err.message}`, "error");
+          alert(
+            "Gagal mengambil info video. Pastikan link benar & akun publik."
+          );
+        } finally {
+          btn.disabled = false;
+          btnText.innerText = "CEK";
+          btnIcon.classList.add("hidden");
+        }
+      }
+
+      function showPreview(data) {
+        const panel = document.getElementById("previewPanel");
+        panel.classList.remove("hidden");
+
+        // Populate Data
+        document.getElementById("mediaTitle").innerText = data.title;
+        document.getElementById("thumbImg").src = data.thumbnail;
+        document.getElementById("uploaderName").innerText = data.uploader;
+        document.getElementById("durationTime").innerText = data.duration;
+        document.getElementById("platformTag").innerText = data.platform;
+
+        // Populate Video Resolutions
+        const resSelect = document.getElementById("videoQualSelect");
+        resSelect.innerHTML =
+          '<option value="best">Best Available (Auto)</option>';
+
+        if (data.resolutions && data.resolutions.length > 0) {
+          data.resolutions.forEach((res) => {
+            const opt = document.createElement("option");
+            opt.value = res;
+            opt.innerText = `${res}p (HD)`;
+            resSelect.appendChild(opt);
+          });
+          addLog(`Resolusi tersedia: ${data.resolutions.join(", ")}`);
+        } else {
+          addLog(`Hanya tersedia satu kualitas (Default).`);
+        }
+      }
+
       function toggleQualities() {
         const format = document.getElementById("formatSelect").value;
         const vContainer = document.getElementById("videoQualContainer");
@@ -179,82 +370,41 @@
         }
       }
 
-      async function checkUrl() {
-        const url = document.getElementById("urlInput").value;
-        if (!url) return alert("URL kosong!");
-
-        resetUI(false);
-        addLog(`Menganalisa metadata URL...`);
-        document.getElementById("btnCheck").disabled = true;
-
-        try {
-          const response = await fetch("/get-info", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ url: url }),
-          });
-          const result = await response.json();
-
-          if (response.ok) {
-            showPreview(result.data);
-            addLog(
-              `Metadata diterima. Resolusi tersedia: ${
-                result.data.resolutions.length > 0
-                  ? result.data.resolutions.join(", ")
-                  : "Default"
-              }`
-            );
-          } else {
-            throw new Error(result.error);
-          }
-        } catch (err) {
-          addLog(`Gagal: ${err.message}`, "error");
-        } finally {
-          document.getElementById("btnCheck").disabled = false;
-        }
-      }
-
-      function showPreview(data) {
-        document.getElementById("previewPanel").classList.remove("hidden");
-        document.getElementById("mediaTitle").innerText = data.title;
-        document.getElementById("thumbImg").src = data.thumbnail;
-        document.getElementById("uploaderName").innerText = data.uploader;
-        document.getElementById("durationTime").innerText = data.duration;
-        document.getElementById("platformTag").innerText = data.platform;
-
-        // Populate Video Resolutions
-        const resSelect = document.getElementById("videoQualSelect");
-        resSelect.innerHTML =
-          '<option value="best">Best Available (Default)</option>';
-
-        if (data.resolutions && data.resolutions.length > 0) {
-          data.resolutions.forEach((res) => {
-            const opt = document.createElement("option");
-            opt.value = res;
-            opt.innerText = `${res}p`;
-            resSelect.appendChild(opt);
-          });
-        }
-      }
-
-      async function executeDownload() {
+      // --- STEP 2: DOWNLOAD EXECUTION ---
+      async function executeDownload(isIos) {
         const url = document.getElementById("urlInput").value;
         const format = document.getElementById("formatSelect").value;
         const vQual = document.getElementById("videoQualSelect").value;
         const aQual = document.getElementById("audioQualSelect").value;
-        const btn = document.getElementById("btnDownload");
 
-        btn.disabled = true;
-        btn.innerText = "Processing...";
+        const activeBtn = isIos
+          ? document.getElementById("btnIOS")
+          : document.getElementById("btnNormal");
+        const otherBtn = isIos
+          ? document.getElementById("btnNormal")
+          : document.getElementById("btnIOS");
+        const originalText = activeBtn.innerHTML;
+
+        // UI Lockdown
+        activeBtn.disabled = true;
+        otherBtn.disabled = true;
+        activeBtn.innerHTML = isIos
+          ? `<span class="animate-spin">⚙️</span> Converting...`
+          : `<span class="animate-spin">⏳</span> Downloading...`;
+
         addLog(
-          `Memulai download... Format: ${format}, Target: ${
-            format === "audio"
-              ? aQual + "kbps"
-              : vQual === "best"
-              ? "Best"
-              : vQual + "p"
-          }`
+          `Memulai download... Mode: ${isIos ? "iOS (Re-encode)" : "Standard"}`
         );
+        if (isIos)
+          addLog(
+            "Mohon tunggu, sedang konversi format untuk iPhone...",
+            "warn"
+          );
+        else
+          addLog(
+            "Download berjalan di background, tunggu notifikasi...",
+            "warn"
+          );
 
         try {
           const response = await fetch("/download", {
@@ -265,11 +415,12 @@
               format: format,
               v_quality: vQual,
               a_quality: aQual,
+              ios_mode: isIos,
             }),
           });
 
           if (response.ok) {
-            // Logic filename extraction
+            // Extract Filename
             let filename = "download." + (format === "audio" ? "mp3" : "mp4");
             const disposition = response.headers.get("Content-Disposition");
             if (disposition && disposition.includes("attachment")) {
@@ -280,37 +431,56 @@
                 filename = matches[1].replace(/['"]/g, "");
             }
 
+            // Create Blob & Trigger Download
             const blob = await response.blob();
             const downloadUrl = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = downloadUrl;
             a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            addLog(`SUKSES! File: ${filename}`);
+
+            // Mobile Fix: Timeout ensures click registers
+            setTimeout(() => {
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+              window.URL.revokeObjectURL(downloadUrl);
+            }, 100);
+
+            addLog(`SUKSES! File dikirim: ${filename}`);
+            addLog("Cek folder Downloads / File Manager HP kamu.");
           } else {
             const err = await response.json();
             throw new Error(err.error);
           }
         } catch (error) {
-          addLog(`Error: ${error.message}`, "error");
+          addLog(`ERROR: ${error.message}`, "error");
         } finally {
-          btn.disabled = false;
-          btn.innerText = "DOWNLOAD";
+          // Restore Buttons
+          activeBtn.disabled = false;
+          otherBtn.disabled = false;
+          activeBtn.innerHTML = originalText;
         }
       }
 
+      // --- RESET FUNCTIONS ---
       function resetAll() {
         document.getElementById("urlInput").value = "";
         document.getElementById("logs").innerHTML =
-          '<div class="opacity-50">System Reset.</div>';
+          '<div class="opacity-50">System Reset. Ready.</div>';
         resetUI(true);
       }
 
       function resetUI(full) {
         document.getElementById("previewPanel").classList.add("hidden");
         if (full) document.getElementById("thumbImg").src = "";
+      }
+
+      // --- SERVICE WORKER REGISTRATION (PWA) ---
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/static/sw.js")
+          .then(() => console.log("Service Worker Active"))
+          .catch((err) => console.log("SW Fail:", err));
       }
     </script>
   </body>
