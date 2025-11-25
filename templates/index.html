@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="theme-color" content="#1f2937" />
+    <title>Pro Downloader V2</title>
+
+    <link rel="manifest" href="/static/manifest.json" />
+    <link rel="apple-touch-icon" href="/static/icon.png" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body
+    class="bg-gray-900 text-gray-200 min-h-screen font-mono p-4 flex flex-col items-center"
+  >
+    <div class="w-full max-w-2xl space-y-6 mt-10">
+      <div class="text-center space-y-2">
+        <h1 class="text-4xl font-bold text-blue-500 tracking-tighter">
+          UNIVERSAL <span class="text-white">DOWNLOADER</span>
+        </h1>
+        <p class="text-xs text-gray-500">HD VIDEO • HQ AUDIO • MULTI-FORMAT</p>
+      </div>
+
+      <div class="bg-gray-800 border border-gray-700 p-6 rounded-lg shadow-2xl">
+        <div class="flex gap-2 mb-4">
+          <input
+            type="text"
+            id="urlInput"
+            placeholder="Tempel Link (TikTok, IG, FB, YT)..."
+            class="w-full bg-gray-900 border border-gray-600 rounded p-3 text-white focus:outline-none focus:border-blue-500 transition"
+          />
+          <button
+            onclick="checkUrl()"
+            id="btnCheck"
+            class="bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded font-bold text-white transition shrink-0"
+          >
+            Cek Link
+          </button>
+        </div>
+        <p
+          class="text-xs text-gray-500 text-right cursor-pointer hover:text-red-400"
+          onclick="resetAll()"
+        >
+          [ Reset System ]
+        </p>
+      </div>
+
+      <div
+        id="previewPanel"
+        class="hidden bg-gray-800 border border-gray-700 p-6 rounded-lg shadow-2xl flex flex-col md:flex-row gap-6 items-start"
+      >
+        <div class="w-full md:w-1/3">
+          <img
+            id="thumbImg"
+            src=""
+            class="w-full rounded border border-gray-600 shadow-lg object-cover"
+          />
+        </div>
+
+        <div class="w-full md:w-2/3 space-y-4">
+          <div>
+            <span
+              id="platformTag"
+              class="bg-gray-700 text-xs px-2 py-1 rounded text-blue-300 uppercase font-bold"
+              >Platform</span
+            >
+            <h2
+              id="mediaTitle"
+              class="text-xl font-bold text-white mt-1 leading-tight line-clamp-2"
+            >
+              Title
+            </h2>
+            <p class="text-sm text-gray-400 mt-1">
+              By: <span id="uploaderName">User</span> •
+              <span id="durationTime">00:00</span>
+            </p>
+          </div>
+
+          <div class="border-t border-gray-700 pt-4 space-y-3">
+            <div>
+              <label class="text-xs text-gray-400 mb-1 block">TIPE FILE:</label>
+              <select
+                id="formatSelect"
+                onchange="toggleQualities()"
+                class="bg-gray-900 border border-gray-600 rounded p-2 text-sm w-full focus:outline-none"
+              >
+                <option value="merge">🎬 Video + Audio (MP4)</option>
+                <option value="audio">🎵 Audio Only (MP3)</option>
+                <option value="video_only">🔇 Video Only (No Sound)</option>
+              </select>
+            </div>
+
+            <div id="videoQualContainer">
+              <label class="text-xs text-gray-400 mb-1 block"
+                >KUALITAS VIDEO (Max Res):</label
+              >
+              <select
+                id="videoQualSelect"
+                class="bg-gray-900 border border-gray-600 rounded p-2 text-sm w-full focus:outline-none text-white"
+              >
+                <option value="best">Best Available</option>
+              </select>
+            </div>
+
+            <div id="audioQualContainer" class="hidden">
+              <label class="text-xs text-gray-400 mb-1 block"
+                >KUALITAS AUDIO (Bitrate):</label
+              >
+              <select
+                id="audioQualSelect"
+                class="bg-gray-900 border border-gray-600 rounded p-2 text-sm w-full focus:outline-none text-white"
+              >
+                <option value="320">320 kbps (High Quality)</option>
+                <option value="192" selected>192 kbps (Standard)</option>
+                <option value="128">128 kbps (Low/Light)</option>
+                <option value="64">64 kbps (Very Low)</option>
+              </select>
+            </div>
+
+            <button
+              onclick="executeDownload()"
+              id="btnDownload"
+              class="w-full bg-green-600 hover:bg-green-500 py-3 rounded font-bold text-white transition mt-2"
+            >
+              DOWNLOAD
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="bg-black border border-gray-700 rounded-lg p-4 font-mono text-xs h-40 overflow-y-auto scrollbar-hide shadow-inner w-full"
+        id="logContainer"
+      >
+        <div id="logs" class="space-y-1 text-green-400">
+          <div class="opacity-50">System Ready...</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Register Service Worker untuk PWA
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/static/sw.js")
+          .then(() => console.log("Service Worker Registered"));
+      }
+
+      function addLog(msg, type = "info") {
+        const logsDiv = document.getElementById("logs");
+        const time = new Date().toLocaleTimeString("en-US", { hour12: false });
+        let color =
+          type === "error"
+            ? "text-red-500"
+            : type === "warn"
+            ? "text-yellow-400"
+            : "text-green-400";
+        logsDiv.innerHTML += `<div class="${color}"><span class="opacity-50">[${time}]</span> ${msg}</div>`;
+        document.getElementById("logContainer").scrollTop =
+          document.getElementById("logContainer").scrollHeight;
+      }
+
+      // Handle UI changes based on Format selection
+      function toggleQualities() {
+        const format = document.getElementById("formatSelect").value;
+        const vContainer = document.getElementById("videoQualContainer");
+        const aContainer = document.getElementById("audioQualContainer");
+
+        if (format === "audio") {
+          vContainer.classList.add("hidden");
+          aContainer.classList.remove("hidden");
+        } else {
+          vContainer.classList.remove("hidden");
+          aContainer.classList.add("hidden");
+        }
+      }
+
+      async function checkUrl() {
+        const url = document.getElementById("urlInput").value;
+        if (!url) return alert("URL kosong!");
+
+        resetUI(false);
+        addLog(`Menganalisa metadata URL...`);
+        document.getElementById("btnCheck").disabled = true;
+
+        try {
+          const response = await fetch("/get-info", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url: url }),
+          });
+          const result = await response.json();
+
+          if (response.ok) {
+            showPreview(result.data);
+            addLog(
+              `Metadata diterima. Resolusi tersedia: ${
+                result.data.resolutions.length > 0
+                  ? result.data.resolutions.join(", ")
+                  : "Default"
+              }`
+            );
+          } else {
+            throw new Error(result.error);
+          }
+        } catch (err) {
+          addLog(`Gagal: ${err.message}`, "error");
+        } finally {
+          document.getElementById("btnCheck").disabled = false;
+        }
+      }
+
+      function showPreview(data) {
+        document.getElementById("previewPanel").classList.remove("hidden");
+        document.getElementById("mediaTitle").innerText = data.title;
+        document.getElementById("thumbImg").src = data.thumbnail;
+        document.getElementById("uploaderName").innerText = data.uploader;
+        document.getElementById("durationTime").innerText = data.duration;
+        document.getElementById("platformTag").innerText = data.platform;
+
+        // Populate Video Resolutions
+        const resSelect = document.getElementById("videoQualSelect");
+        resSelect.innerHTML =
+          '<option value="best">Best Available (Default)</option>';
+
+        if (data.resolutions && data.resolutions.length > 0) {
+          data.resolutions.forEach((res) => {
+            const opt = document.createElement("option");
+            opt.value = res;
+            opt.innerText = `${res}p`;
+            resSelect.appendChild(opt);
+          });
+        }
+      }
+
+      async function executeDownload() {
+        const url = document.getElementById("urlInput").value;
+        const format = document.getElementById("formatSelect").value;
+        const vQual = document.getElementById("videoQualSelect").value;
+        const aQual = document.getElementById("audioQualSelect").value;
+        const btn = document.getElementById("btnDownload");
+
+        btn.disabled = true;
+        btn.innerText = "Processing...";
+        addLog(
+          `Memulai download... Format: ${format}, Target: ${
+            format === "audio"
+              ? aQual + "kbps"
+              : vQual === "best"
+              ? "Best"
+              : vQual + "p"
+          }`
+        );
+
+        try {
+          const response = await fetch("/download", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              url: url,
+              format: format,
+              v_quality: vQual,
+              a_quality: aQual,
+            }),
+          });
+
+          if (response.ok) {
+            // Logic filename extraction
+            let filename = "download." + (format === "audio" ? "mp3" : "mp4");
+            const disposition = response.headers.get("Content-Disposition");
+            if (disposition && disposition.includes("attachment")) {
+              const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(
+                disposition
+              );
+              if (matches != null && matches[1])
+                filename = matches[1].replace(/['"]/g, "");
+            }
+
+            const blob = await response.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = downloadUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            addLog(`SUKSES! File: ${filename}`);
+          } else {
+            const err = await response.json();
+            throw new Error(err.error);
+          }
+        } catch (error) {
+          addLog(`Error: ${error.message}`, "error");
+        } finally {
+          btn.disabled = false;
+          btn.innerText = "DOWNLOAD";
+        }
+      }
+
+      function resetAll() {
+        document.getElementById("urlInput").value = "";
+        document.getElementById("logs").innerHTML =
+          '<div class="opacity-50">System Reset.</div>';
+        resetUI(true);
+      }
+
+      function resetUI(full) {
+        document.getElementById("previewPanel").classList.add("hidden");
+        if (full) document.getElementById("thumbImg").src = "";
+      }
+    </script>
+  </body>
+</html>
